@@ -1,0 +1,122 @@
+<mxfile host="app.diagrams.net" agent="Claude">
+  <diagram name="Terraform IaC Demo" id="main">
+    <mxGraphModel dx="1414" dy="701" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1654" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="internet" parent="1" style="shape=cloud;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;fontStyle=1;" value="&lt;b&gt;Internet&lt;/b&gt;&lt;br&gt;Usuario" vertex="1">
+          <mxGeometry height="80" width="160" x="490" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="backend_section" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#555555;fontColor=#333333;fontSize=12;verticalAlign=top;dashed=1;strokeWidth=2;arcSize=4;" value="&lt;b&gt;0_tf-backend&lt;/b&gt;&lt;br&gt;(CloudFormation)" vertex="1">
+          <mxGeometry height="830" width="290" x="1110" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_icon" parent="1" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;fillColor=#7AA116;gradientColor=none;strokeColor=none;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="1145" y="195" as="geometry" />
+        </mxCell>
+        <mxCell id="s3_label" parent="1" style="text;html=1;align=left;fontSize=10;verticalAlign=top;" value="&lt;b&gt;S3 Bucket&lt;/b&gt;&lt;br&gt;tf-demo-shared-tf-state&lt;br&gt;-719640820316-us-east-1&lt;br&gt;─────────────────&lt;br&gt;✔ Versioning habilitado&lt;br&gt;✔ AES256 encryption&lt;br&gt;✔ Block public access&lt;br&gt;✔ HTTPS-only policy" vertex="1">
+          <mxGeometry height="130" width="245" x="1135" y="265" as="geometry" />
+        </mxCell>
+        <mxCell id="state_structure" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=10;align=left;spacingLeft=8;verticalAlign=top;" value="&lt;b&gt;Estructura del state en S3:&lt;/b&gt;&lt;br&gt;infra-base/&lt;br&gt;  dev/terraform.tfstate&lt;br&gt;  prod/terraform.tfstate&lt;br&gt;load-balancer/&lt;br&gt;  dev/terraform.tfstate&lt;br&gt;  prod/terraform.tfstate" vertex="1">
+          <mxGeometry height="125" width="250" x="1130" y="415" as="geometry" />
+        </mxCell>
+        <mxCell id="dynamo_icon" parent="1" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;fillColor=#4D27AA;gradientColor=none;strokeColor=none;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="1145" y="570" as="geometry" />
+        </mxCell>
+        <mxCell id="dynamo_label" parent="1" style="text;html=1;align=left;fontSize=10;verticalAlign=top;" value="&lt;b&gt;DynamoDB Table&lt;/b&gt;&lt;br&gt;tf-demo-shared-tf-lock&lt;br&gt;─────────────────&lt;br&gt;✔ PAY_PER_REQUEST&lt;br&gt;✔ Point-in-time recovery&lt;br&gt;✔ SSE habilitado&lt;br&gt;✔ LockID (HASH key)" vertex="1">
+          <mxGeometry height="120" width="245" x="1135" y="640" as="geometry" />
+        </mxCell>
+        <mxCell id="use_lockfile_note" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f9a825;fontSize=10;" value="use_lockfile = true&lt;br&gt;(Terraform ≥ 1.10)" vertex="1">
+          <mxGeometry height="45" width="250" x="1140" y="790" as="geometry" />
+        </mxCell>
+        <mxCell id="lb_section" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fffde7;strokeColor=#f9a825;fontSize=12;verticalAlign=top;dashed=1;strokeWidth=2;arcSize=3;" value="&lt;b&gt;2_load_balancer&lt;/b&gt;  (Terraform · workspace activo)" vertex="1">
+          <mxGeometry height="200" width="1020" x="60" y="120" as="geometry" />
+        </mxCell>
+        <mxCell id="alb_sg_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff9e6;strokeColor=#d6b656;fontSize=10;verticalAlign=top;dashed=1;" value="Security Group (ALB)" vertex="1">
+          <mxGeometry height="158" width="510" x="280" y="148" as="geometry" />
+        </mxCell>
+        <mxCell id="alb_icon" parent="1" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.application_load_balancer;fillColor=#8C4FFF;gradientColor=none;strokeColor=none;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="450" y="175" as="geometry" />
+        </mxCell>
+        <mxCell id="alb_text" parent="1" style="text;html=1;align=left;fontSize=11;" value="&lt;b&gt;Application Load Balancer&lt;/b&gt;&lt;br&gt;tf-demo-[env]-alb&lt;br&gt;Internet-facing · HTTP :80&lt;br&gt;Una única URL por ambiente" vertex="1">
+          <mxGeometry height="80" width="255" x="525" y="182" as="geometry" />
+        </mxCell>
+        <mxCell id="infra_section" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;fontSize=12;verticalAlign=top;dashed=1;strokeWidth=2;arcSize=3;" value="&lt;b&gt;1_infra_base&lt;/b&gt;  (Terraform · workspace activo)" vertex="1">
+          <mxGeometry height="600" width="1020" x="60" y="350" as="geometry" />
+        </mxCell>
+        <mxCell id="vpc_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e3f2fd;strokeColor=#1565c0;fontSize=11;verticalAlign=top;" value="VPC (Default)  ·  aws_default_vpc" vertex="1">
+          <mxGeometry height="555" width="980" x="80" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="web_sg_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffebee;strokeColor=#c62828;fontSize=10;verticalAlign=top;dashed=1;" value="Security Group (Web) — rules via dynamic for_each" vertex="1">
+          <mxGeometry height="515" width="940" x="100" y="408" as="geometry" />
+        </mxCell>
+        <mxCell id="tg_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontSize=11;" value="🎯  &lt;b&gt;Target Group&lt;/b&gt;  ·  tf-demo-[env]-tg  ·  HTTP :80  ·  Health check: GET /" vertex="1">
+          <mxGeometry height="45" width="490" x="305" y="435" as="geometry" />
+        </mxCell>
+        <mxCell id="az1_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;verticalAlign=top;" value="&lt;b&gt;Availability Zone: us-east-1a&lt;/b&gt;&lt;br&gt;DEV y PROD" vertex="1">
+          <mxGeometry height="400" width="420" x="118" y="505" as="geometry" />
+        </mxCell>
+        <mxCell id="subnet1_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;verticalAlign=top;dashed=1;" value="Subnet: default-us-east-1a  ·  aws_default_subnet" vertex="1">
+          <mxGeometry height="345" width="390" x="133" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2_1_icon" parent="1" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;fillColor=#ED7100;gradientColor=none;strokeColor=none;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="268" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2_1_text" parent="1" style="text;html=1;align=center;fontSize=10;verticalAlign=top;" value="&lt;b&gt;EC2 + Nginx&lt;/b&gt;&lt;br&gt;&lt;br&gt;DEV:  t2.micro  (única instancia)&lt;br&gt;PROD: t3.small (réplica 1 de 2)&lt;br&gt;&lt;br&gt;user_data instala Nginx y sirve&lt;br&gt;una página HTML con el badge:&lt;br&gt;&lt;span style=&#39;background:#d4edda;color:#28a745;padding:2px 8px;border-radius:4px;font-weight:bold&#39;&gt; DEVELOPMENT &lt;/span&gt; o &lt;span style=&#39;background:#f8d7da;color:#dc3545;padding:2px 8px;border-radius:4px;font-weight:bold&#39;&gt; PRODUCTION &lt;/span&gt;&lt;br&gt;&lt;br&gt;Muestra: AZ, tipo EC2, réplicas" vertex="1">
+          <mxGeometry height="220" width="370" x="143" y="655" as="geometry" />
+        </mxCell>
+        <mxCell id="az2_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=11;verticalAlign=top;" value="&lt;b&gt;Availability Zone: us-east-1b&lt;/b&gt;&lt;br&gt;Solo PROD  (Alta Disponibilidad)" vertex="1">
+          <mxGeometry height="400" width="420" x="562" y="505" as="geometry" />
+        </mxCell>
+        <mxCell id="subnet2_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e8f5e9;strokeColor=#2e7d32;fontSize=10;verticalAlign=top;dashed=1;" value="Subnet: default-us-east-1b  ·  aws_default_subnet" vertex="1">
+          <mxGeometry height="345" width="390" x="577" y="545" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2_2_icon" parent="1" style="shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;fillColor=#ED7100;gradientColor=none;strokeColor=none;html=1;" value="" vertex="1">
+          <mxGeometry height="60" width="60" x="712" y="580" as="geometry" />
+        </mxCell>
+        <mxCell id="ec2_2_text" parent="1" style="text;html=1;align=center;fontSize=10;verticalAlign=top;" value="&lt;b&gt;EC2 + Nginx&lt;/b&gt;&lt;br&gt;&lt;br&gt;PROD: t3.small (réplica 2 de 2)&lt;br&gt;&lt;br&gt;AZ distinta a réplica 1&lt;br&gt;→ si falla us-east-1a, el ALB&lt;br&gt;sigue enviando tráfico aquí&lt;br&gt;&lt;br&gt;&lt;span style=&#39;background:#f8d7da;color:#dc3545;padding:2px 8px;border-radius:4px;font-weight:bold&#39;&gt; PRODUCTION &lt;/span&gt;&lt;br&gt;&lt;br&gt;Muestra: AZ, tipo EC2, réplicas" vertex="1">
+          <mxGeometry height="220" width="370" x="587" y="655" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_dev" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=11;fontStyle=1;" value="&lt;b&gt;workspace: dev&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="165" x="60" y="975" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_dev_text" parent="1" style="text;html=1;fontSize=11;align=left;" value="1 instancia · t2.micro · 1 AZ · Badge VERDE · 1 TG attachment" vertex="1">
+          <mxGeometry height="25" width="430" x="238" y="982" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_prod" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;fontStyle=1;" value="&lt;b&gt;workspace: prod&lt;/b&gt;" vertex="1">
+          <mxGeometry height="40" width="165" x="60" y="1025" as="geometry" />
+        </mxCell>
+        <mxCell id="legend_prod_text" parent="1" style="text;html=1;fontSize=11;align=left;" value="2 instancias · t3.small · 2 AZs distintas (HA) · Badge ROJO · 2 TG attachments" vertex="1">
+          <mxGeometry height="25" width="490" x="238" y="1032" as="geometry" />
+        </mxCell>
+        <mxCell id="destroy_warning" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="⚠️  &lt;b&gt;Orden de destrucción:&lt;/b&gt;  2_load_balancer primero → luego 1_infra_base&lt;br&gt;Si se destruye en orden incorrecto usar:  terraform destroy -refresh=false" vertex="1">
+          <mxGeometry height="50" width="780" x="60" y="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="e_internet_alb" edge="1" parent="1" source="internet" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;strokeColor=#0066CC;strokeWidth=2;fontStyle=1;fontSize=11;" target="alb_icon" value="HTTP :80">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_alb_tg" edge="1" parent="1" source="alb_icon" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7b1fa2;strokeWidth=2;fontSize=11;fontStyle=1;" target="tg_box" value="forward">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tg_ec2_1" edge="1" parent="1" source="tg_box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2e7d32;strokeWidth=2;fontSize=10;" target="ec2_1_icon" value="round-robin">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_tg_ec2_2" edge="1" parent="1" source="tg_box" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#2e7d32;strokeWidth=2;dashed=1;fontSize=10;" target="ec2_2_icon" value="solo PROD">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_infra_s3" edge="1" parent="1" source="infra_section" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7AA116;strokeWidth=1;dashed=1;fontSize=9;entryX=0;entryY=0.4;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="s3_icon" value="terraform state write">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_lb_s3_write" edge="1" parent="1" source="lb_section" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#7AA116;strokeWidth=1;dashed=1;fontSize=9;entryX=0;entryY=0.3;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" target="s3_icon" value="state write">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_lb_remote_read" edge="1" parent="1" source="alb_icon" style="edgeStyle=orthogonalEdgeStyle;rounded=0;strokeColor=#4D27AA;strokeWidth=1;dashed=1;fontSize=9;fontStyle=2;entryX=0;entryY=0.35;entryDx=0;entryDy=0;exitX=1;exitY=0.3;exitDx=0;exitDy=0;" target="s3_icon" value="terraform_remote_state&lt;br&gt;(lee outputs de 1_infra_base)">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1090" y="205" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

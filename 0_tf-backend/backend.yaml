@@ -1,0 +1,167 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Aprovisiona la infraestructura base para el estado remoto de Terraform:
+  un bucket S3 para almacenar el estado y una tabla DynamoDB para el bloqueo.
+  Los nombres siguen la convención: Identifier-Environment-TipoRecurso-AccountId-Region
+
+# ---------------------------------------------------------------------------
+# Parámetros
+# ---------------------------------------------------------------------------
+Parameters:
+
+  Identifier:
+    Type: String
+    Description: Prefijo único del proyecto (ej. tf-demo, myapp)
+    Default: tf-demo
+    AllowedPattern: '[a-zA-Z0-9-]+'
+    ConstraintDescription: Solo caracteres alfanuméricos y guiones
+
+  Environment:
+    Type: String
+    Description: >
+      Entorno lógico del backend. Usa "shared" si el mismo bucket
+      sirve todos los workspaces (dev, prod, etc.)
+    Default: shared
+    AllowedPattern: '[a-zA-Z0-9-]+'
+    ConstraintDescription: Solo caracteres alfanuméricos y guiones
+
+  Project:
+    Type: String
+    Description: Nombre del proyecto para etiquetar los recursos
+    Default: terraform-demo
+    AllowedPattern: '[a-zA-Z0-9-]+'
+    ConstraintDescription: Solo caracteres alfanuméricos y guiones
+
+# ---------------------------------------------------------------------------
+# Recursos
+# ---------------------------------------------------------------------------
+Resources:
+
+  # -------------------------------------------------------------------------
+  # Bucket S3 — Almacenamiento del estado de Terraform
+  # Nombre: Identifier-Environment-tf-state-AccountId-Region
+  # -------------------------------------------------------------------------
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BucketName: !Sub '${Identifier}-${Environment}-tf-state-${AWS::AccountId}-${AWS::Region}'
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Name
+          Value: !Sub '${Identifier}-${Environment}-tf-state-${AWS::AccountId}-${AWS::Region}'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Project
+          Value: !Ref Project
+        - Key: ManagedBy
+          Value: CloudFormation
+
+  # Política del bucket — fuerza HTTPS en todas las solicitudes
+  TerraformStateBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref TerraformStateBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: DenyNonHTTPS
+            Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt TerraformStateBucket.Arn
+              - !Sub '${TerraformStateBucket.Arn}/*'
+            Condition:
+              Bool:
+                'aws:SecureTransport': false
+
+  # -------------------------------------------------------------------------
+  # Tabla DynamoDB — Bloqueo del estado de Terraform
+  # Nombre: Identifier-Environment-tf-lock-AccountId-Region
+  # -------------------------------------------------------------------------
+  TerraformLockTable:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      TableName: !Sub '${Identifier}-${Environment}-tf-lock-${AWS::AccountId}-${AWS::Region}'
+      BillingMode: PAY_PER_REQUEST
+      TableClass: STANDARD
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      SSESpecification:
+        SSEEnabled: true
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      Tags:
+        - Key: Name
+          Value: !Sub '${Identifier}-${Environment}-tf-lock-${AWS::AccountId}-${AWS::Region}'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: Project
+          Value: !Ref Project
+        - Key: ManagedBy
+          Value: CloudFormation
+
+# ---------------------------------------------------------------------------
+# Outputs
+# ---------------------------------------------------------------------------
+Outputs:
+
+  TerraformStateBucketName:
+    Description: Nombre del bucket S3 para el estado de Terraform
+    Value: !Ref TerraformStateBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-state-bucket'
+
+  TerraformStateBucketArn:
+    Description: ARN del bucket S3
+    Value: !GetAtt TerraformStateBucket.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-state-bucket-arn'
+
+  TerraformLockTableName:
+    Description: Nombre de la tabla DynamoDB para el bloqueo
+    Value: !Ref TerraformLockTable
+    Export:
+      Name: !Sub '${AWS::StackName}-lock-table'
+
+  TerraformLockTableArn:
+    Description: ARN de la tabla DynamoDB
+    Value: !GetAtt TerraformLockTable.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-lock-table-arn'
+
+  TerraformBackendConfig:
+    Description: >
+      Bloque backend para pegar en 1_infra_base/main.tf.
+      El key "terraform.tfstate" + workspaces genera rutas como:
+        default   → terraform.tfstate
+        dev       → env:/dev/terraform.tfstate
+        prod      → env:/prod/terraform.tfstate
+    Value: !Sub |
+      terraform {
+        backend "s3" {
+          bucket         = "${Identifier}-${Environment}-tf-state-${AWS::AccountId}-${AWS::Region}"
+          key            = "terraform.tfstate"
+          region         = "${AWS::Region}"
+          dynamodb_table = "${Identifier}-${Environment}-tf-lock-${AWS::AccountId}-${AWS::Region}"
+          encrypt        = true
+        }
+      }
